@@ -1,4 +1,4 @@
-import { _decorator, Component, Vec3, EventMouse, input, Input, Animation } from "cc";
+import { _decorator, Component, Vec3, EventMouse, input, Input, Animation, Node, EventTouch } from "cc";
 const { ccclass, property } = _decorator;
 
 export const BLOCK_SIZE = 40;
@@ -9,6 +9,12 @@ export class PlayerController extends Component {
     @property(Animation)
     BodyAnim: Animation = null;
 
+    @property(Node)
+    leftTouch: Node = null;
+
+    @property(Node)
+    rightTouch: Node = null;
+
     private _startJump: boolean = false;
     private _jumpStep: number = 0;
     private _curJumpTime: number = 0;
@@ -18,16 +24,20 @@ export class PlayerController extends Component {
     private _deltaPos: Vec3 = new Vec3(0, 0, 0);
     private _targetPos: Vec3 = new Vec3();
     private _curMoveIndex: number = 0;
-    
+
     start() {
         //input.on(Input.EventType.MOUSE_UP, this.onMouseUp, this);
     }
 
     setInputActive(active: boolean) {
         if (active) {
-            input.on(Input.EventType.MOUSE_UP, this.onMouseUp, this);
+            // input.on(Input.EventType.MOUSE_UP, this.onMouseUp, this);
+            this.leftTouch.on(Input.EventType.TOUCH_START, this.onTouchStart, this);
+            this.rightTouch.on(Input.EventType.TOUCH_START, this.onTouchStart, this);
         } else {
-            input.off(Input.EventType.MOUSE_UP, this.onMouseUp, this);
+            // input.off(Input.EventType.MOUSE_UP, this.onMouseUp, this);
+            this.leftTouch.off(Input.EventType.TOUCH_START, this.onTouchStart, this);
+            this.rightTouch.off(Input.EventType.TOUCH_START, this.onTouchStart, this);
         }
     }
 
@@ -42,6 +52,15 @@ export class PlayerController extends Component {
             this.jumpByStep(2);
         }
 
+    }
+
+    onTouchStart(event: EventTouch) {
+        const target = event.target as Node;
+        if (target?.name == 'LeftTouch') {
+            this.jumpByStep(1);
+        } else {
+            this.jumpByStep(2);
+        }
     }
 
     jumpByStep(step: number) {
@@ -93,4 +112,5 @@ export class PlayerController extends Component {
             }
         }
     }
+
 }

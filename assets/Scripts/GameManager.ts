@@ -28,6 +28,8 @@ export class GameManager extends Component {
     public playerCtrl: PlayerController | null = null;
     @property({ type: Label })
     public stepsLabel: Label | null = null;
+    @property({ type: Label })
+    public overLabel: Label | null = null;
 
     start() {
         this.setCurState(GameState.GS_INIT);
@@ -51,18 +53,24 @@ export class GameManager extends Component {
     setCurState(value: GameState) {
         switch (value) {
             case GameState.GS_INIT:
+                this.playerCtrl.leftTouch.active = false;
+                this.playerCtrl.rightTouch.active = false;
+                this.stepsLabel.string = '分数: 0';
                 this.init();
                 break;
             case GameState.GS_PLAYING:
+                this.overLabel.string = '';
+                this.playerCtrl.leftTouch.active = true;
+                this.playerCtrl.rightTouch.active = true;
                 if (this.startMenu) {
                     this.startMenu.active = false;
                 }
 
                 if (this.stepsLabel) {
-                    this.stepsLabel.string = '分数: 1';   // 将步数重置为0
+                    this.stepsLabel.string = '分数: 1';
                 }
 
-                setTimeout(() => {      //直接设置active会直接开始监听鼠标事件，做了一下延迟处理
+                setTimeout(() => {
                     if (this.playerCtrl) {
                         this.playerCtrl.setInputActive(true);
                     }
@@ -120,10 +128,13 @@ export class GameManager extends Component {
     checkResult(moveIndex: number) {
         if (moveIndex < this.roadLength) {
             if (this._road[moveIndex] == BlockType.BT_NONE) {   //跳到了空方块上
+                this.overLabel.string = "最终得分:" + (moveIndex + 1)
                 this.setCurState(GameState.GS_INIT);
             }
-        } else {    // 跳过了最大长度            
+        } else {    // 跳过了最大长度    
+            this.overLabel.string = "最终得分:" + (this.roadLength + 1)
             this.setCurState(GameState.GS_INIT);
+
         }
     }
 
